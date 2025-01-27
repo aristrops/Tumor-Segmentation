@@ -3,6 +3,7 @@ import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 
+#functions to create the dataset
 def create_list():
     directory = "Dataset_BUSI_with_GT"
     categories = ["benign", "malignant"]
@@ -61,4 +62,27 @@ def split_dataset(image_and_mask_list):
     val_pairs, test_pairs = train_test_split(val_test_pairs, test_size=0.5, random_state=42)
 
     return train_pairs, val_pairs, test_pairs
+
+
+#function to compute useful metrics
+def dice_coefficient(y_true, y_pred, smooth=1e-6):
+    #flatten the tensors
+    y_true_flat = tf.reshape(y_true, [-1])
+    y_pred_flat = tf.reshape(y_pred, [-1])
+
+    #compute the intersection
+    intersection = tf.reduce_sum(y_true_flat * y_pred_flat)
+
+    return (2. * intersection + smooth) / (tf.reduce_sum(y_true_flat) + tf.reduce_sum(y_pred_flat) + smooth)
+
+def iou(y_true, y_pred, smooth=1e-6):
+    #flatten the tensors
+    y_true_flat = tf.reshape(y_true, [-1])
+    y_pred_flat = tf.reshape(y_pred, [-1])
+
+    #compute the intersection and the union
+    intersection = tf.reduce_sum(y_true_flat * y_pred_flat)
+    union = tf.reduce_sum(y_true_flat) + tf.reduce_sum(y_pred_flat) - intersection
+
+    return (intersection + smooth) / (union + smooth)
 

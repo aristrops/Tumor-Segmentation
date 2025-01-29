@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 
-#functions to create the dataset
+#load the breast cancer image/mask pairs
 def create_list():
     directory = "Dataset_BUSI_with_GT"
     categories = ["benign", "malignant"]
@@ -28,6 +28,41 @@ def create_list():
                 image_and_mask_list.append((image_path, mask_path))
     return image_and_mask_list
 
+#load the skin cancer image/mask pairs
+def create_list_skin(image_directory, mask_directory): #different for training, validation and test
+    image_and_mask_list = []
+    images = os.listdir(image_directory)
+    masks = os.listdir(mask_directory)
+    for image in images:
+        if not image.endswith("_superpixels.png"):
+            mask_name = f"{os.path.splitext(image)[0]}_segmentation.png"
+            if mask_name in masks:
+                image_path = os.path.join(image_directory, image)
+                mask_path = os.path.join(mask_directory, mask_name)
+                image_and_mask_list.append((image_path, mask_path))
+    return image_and_mask_list
+
+
+#load the rectal cancer image/mask pairs
+def create_list_brain():
+    directory = "Brain_tumor_dataset"
+
+    image_and_mask_list = []
+
+    image_path = os.path.join(directory, "images")
+    mask_path = os.path.join(directory, "masks")
+
+    #get all files in both folders
+    image_files = os.listdir(image_path)
+    mask_files = os.listdir(mask_path)
+
+    #match images with their masks
+    common_names = set(image_files) & set(mask_files)
+
+    for file in common_names:
+        image_and_mask_list.append((os.path.join(image_path, file), os.path.join(mask_path, file)))
+
+    return image_and_mask_list
 
 def load_images_and_masks(image_path, mask_path):
     image_size = (256, 256)
@@ -64,7 +99,7 @@ def split_dataset(image_and_mask_list):
     return train_pairs, val_pairs, test_pairs
 
 
-#function to compute useful metrics
+#functions to compute useful metrics
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
     #flatten the tensors
     y_true_flat = tf.reshape(y_true, [-1])

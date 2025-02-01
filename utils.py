@@ -42,8 +42,7 @@ def create_list_skin(image_directory, mask_directory): #different for training, 
                 image_and_mask_list.append((image_path, mask_path))
     return image_and_mask_list
 
-
-#load the rectal cancer image/mask pairs
+#load the brain cancer image/mask pairs
 def create_list_brain():
     directory = "Brain_tumor_dataset"
 
@@ -64,6 +63,7 @@ def create_list_brain():
 
     return image_and_mask_list
 
+#functions to map to the tensorflow dataset
 def load_images_and_masks(image_path, mask_path):
     image_size = (256, 256)
     image = tf.io.read_file(image_path)
@@ -79,16 +79,47 @@ def load_images_and_masks(image_path, mask_path):
 
     return image, mask
 
-def create_dataset(pairs):
+
+def augment_image_and_mask(image, mask):
+
+    #horizontal flip
+    flip_hor = tf.random.uniform([]) > 0.5
+    image = tf.cond(flip_hor, lambda: tf.image.flip_left_right(image), lambda: image)
+    mask = tf.cond(flip_hor, lambda: tf.image.flip_left_right(mask), lambda: mask)
+
+    #vertical flip
+    flip_ver = tf.random.uniform([]) > 0.5
+    image = tf.cond(flip_ver, lambda: tf.image.flip_up_down(image), lambda: image)
+    mask = tf.cond(flip_ver, lambda: tf.image.flip_up_down(mask), lambda: mask)
+
+    #rotation of -20° to +20°
+    k = tf.random.uniform(shape=[], minval=0, maxval=4, dtype=tf.int32)
+    image = tf.image.rot90(image, k)
+    mask = tf.image.rot90(mask, k)
+
+    #brightness change
+    image = tf.image.random_brightness(image, max_delta=0.1)
+
+    #contrast change
+    image = tf.image.random_contrast(image, lower=0.8, upper=1.2)
+
+    return image, mask
+
+#function to create the tensorflow dataset
+def create_dataset(pairs, augment=False):
     image_path = [pair[0] for pair in pairs]
     mask_path = [pair[1] for pair in pairs]
 
     dataset = tf.data.Dataset.from_tensor_slices((image_path, mask_path))
 
-    dataset = dataset.map(lambda image, mask: load_images_and_masks(image, mask), num_parallel_calls=tf.data.AUTOTUNE)
+    dataset = dataset.map(load_images_and_masks)
+
+    if augment:
+        dataset = dataset.map(augment_image_and_mask)
 
     return dataset
 
+#function to split the dataset into train/test/val
 def split_dataset(image_and_mask_list):
     #split into training and validation/test
     train_pairs, val_test_pairs = train_test_split(image_and_mask_list, test_size=0.4, random_state=42)
@@ -121,3 +152,14 @@ def iou(y_true, y_pred, smooth=1e-6):
 
     return (intersection + smooth) / (union + smooth)
 
+def dice_loss(y_true, y_pred, smooth=1e-6):
+    return 1 - dice_coefficient(y_true, y_pred, smooth)
+
+def bce_dice_loss(y_true, y_pred, smooth=1e-6):
+    return tf.keras.losses.binary_crossentropy(y_true, y_pred) + dice_loss(y_true, y_pred, smooth)
+
+def tversky_loss(y_true, y_pred, alpha=0.7, beta=0.3, smooth=1e-6):
+    tp = tf.reduce_sum(y_true * y_pred)
+    fn = tf.reduce_sum(y_true * (1 - y_pred))
+    fp = tf.reduce_sum((1 - y_true) * y_pred)
+    return 1 - (tp + smooth) / (tp + alpha * fn + beta * fp + smooth)

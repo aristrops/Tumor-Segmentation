@@ -103,6 +103,15 @@ def augment_image_and_mask(image, mask):
     #contrast change
     image = tf.image.random_contrast(image, lower=0.8, upper=1.2)
 
+    #crop and resize
+    original_shape = tf.shape(image)
+    crop_size = tf.cast(original_shape[:2], tf.float32) * 0.9  # Convert shape to float before multiplication
+    crop_size = tf.cast(crop_size, tf.int32)  # Convert back to int
+    image = tf.image.resize_with_crop_or_pad(image, crop_size[0], crop_size[1])
+    mask = tf.image.resize_with_crop_or_pad(mask, crop_size[0], crop_size[1])
+    image = tf.image.resize(image, (original_shape[0], original_shape[1]))
+    mask = tf.image.resize(mask, (original_shape[0], original_shape[1]), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+
     return image, mask
 
 #function to create the tensorflow dataset
@@ -122,7 +131,7 @@ def create_dataset(pairs, augment=False):
 #function to split the dataset into train/test/val
 def split_dataset(image_and_mask_list):
     #split into training and validation/test
-    train_pairs, val_test_pairs = train_test_split(image_and_mask_list, test_size=0.4, random_state=42)
+    train_pairs, val_test_pairs = train_test_split(image_and_mask_list, test_size=0.3, random_state=42)
 
     #split validation and test set
     val_pairs, test_pairs = train_test_split(val_test_pairs, test_size=0.5, random_state=42)

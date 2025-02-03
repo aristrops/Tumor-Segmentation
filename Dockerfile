@@ -1,5 +1,5 @@
 # Use TensorFlow GPU base image
-FROM tensorflow/tensorflow:2.15.0-gpu-jupyter
+FROM tensorflow/tensorflow:2.16.1-gpu-jupyter
 
 # Set working directory
 WORKDIR /tf
@@ -9,7 +9,8 @@ RUN pip install --no-cache-dir \
     pandas \
     matplotlib \
     scikit-learn \
-    seaborn
+    seaborn \
+    tensorflow-addons
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 RUN pip install opencv-python
 

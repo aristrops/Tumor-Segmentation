@@ -131,7 +131,7 @@ def create_dataset(pairs, augment=False):
 #function to split the dataset into train/test/val
 def split_dataset(image_and_mask_list):
     #split into training and validation/test
-    train_pairs, val_test_pairs = train_test_split(image_and_mask_list, test_size=0.3, random_state=42)
+    train_pairs, val_test_pairs = train_test_split(image_and_mask_list, test_size=0.4, random_state=42)
 
     #split validation and test set
     val_pairs, test_pairs = train_test_split(val_test_pairs, test_size=0.5, random_state=42)

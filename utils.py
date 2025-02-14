@@ -1,11 +1,10 @@
 import os
-import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 
 #load the breast cancer image/mask pairs
 def create_list():
-    directory = "Dataset_BUSI_with_GT"
+    directory = "Datasets/Dataset_BUSI_with_GT"
     categories = ["benign", "malignant"]
 
     image_and_mask_list = []
@@ -44,8 +43,7 @@ def create_list_skin(image_directory, mask_directory): #different for training, 
 
 #load the brain cancer image/mask pairs
 def create_list_brain():
-    directory = "Brain_tumor_dataset"
-
+    directory = "Datasets/Brain_tumor_dataset"
     image_and_mask_list = []
 
     image_path = os.path.join(directory, "images")

@@ -27,6 +27,7 @@ def create_list():
                 image_and_mask_list.append((image_path, mask_path))
     return image_and_mask_list
 
+
 #load the skin cancer image/mask pairs
 def create_list_skin(image_directory, mask_directory): #different for training, validation and test
     image_and_mask_list = []
@@ -40,6 +41,7 @@ def create_list_skin(image_directory, mask_directory): #different for training, 
                 mask_path = os.path.join(mask_directory, mask_name)
                 image_and_mask_list.append((image_path, mask_path))
     return image_and_mask_list
+
 
 #load the brain cancer image/mask pairs
 def create_list_brain():
@@ -61,6 +63,7 @@ def create_list_brain():
 
     return image_and_mask_list
 
+
 #functions to map to the tensorflow dataset
 def load_images_and_masks(image_path, mask_path):
     image_size = (256, 256)
@@ -77,7 +80,7 @@ def load_images_and_masks(image_path, mask_path):
 
     return image, mask
 
-
+#function to augment the training set
 def augment_image_and_mask(image, mask):
 
     #horizontal flip
@@ -112,6 +115,7 @@ def augment_image_and_mask(image, mask):
 
     return image, mask
 
+
 #function to create the tensorflow dataset
 def create_dataset(pairs, augment=False):
     image_path = [pair[0] for pair in pairs]
@@ -125,6 +129,7 @@ def create_dataset(pairs, augment=False):
         dataset = dataset.map(augment_image_and_mask)
 
     return dataset
+
 
 #function to split the dataset into train/test/val
 def split_dataset(image_and_mask_list):

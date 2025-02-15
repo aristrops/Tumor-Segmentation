@@ -18,9 +18,10 @@ def convolutional_layer(input, num_filters, kernel_size=(3, 3), initializer='he_
 
     return x
 
+
 #attention gate
 def attention_gate(x, g, shape):
-    #match dimensions of g and x
+    #match filters of g and x
     g_down = layers.Conv2D(filters=shape, kernel_size=(1, 1), padding='same')(g)
     g_down = layers.BatchNormalization()(g_down)
     x_down = layers.Conv2D(filters=shape, kernel_size=(1, 1), padding='same')(x)
@@ -38,6 +39,7 @@ def attention_gate(x, g, shape):
     output = layers.Multiply()([x, attention_map])
 
     return output
+
 
 #Channel Transformer class
 class ChannelTransformer(layers.Layer):
@@ -67,6 +69,7 @@ class ChannelTransformer(layers.Layer):
 
         x = tf.reshape(x, (batch_size, H, W, C))
         return x
+
 
 #CCA class
 class CCA(layers.Layer):

@@ -1,7 +1,7 @@
 # VCS Project
-##Enrica Bongiovanni, Laura Prendin, Arianna Stropeni
+## Enrica Bongiovanni, Laura Prendin, Arianna Stropeni
 
-###Git Structure
+### Git Structure
 The project includes the following files:
 
 - [Utils](utils.py): it defines the functions required to create the datasets and the metrics used
